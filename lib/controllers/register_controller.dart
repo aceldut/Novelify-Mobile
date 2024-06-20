@@ -11,9 +11,11 @@ class RegisterController extends GetxController {
   final confirmPwController = TextEditingController();
   var isRegistering = false.obs;
 
+  // Method untuk melakukan registrasi pengguna baru
   void registerUser() async {
     isRegistering.value = true;
 
+    // Validasi bahwa password dan konfirmasi password sesuai
     if (passwordController.text != confirmPwController.text) {
       Get.snackbar('Error', 'Passwords do not match!');
       isRegistering.value = false;
@@ -30,18 +32,20 @@ class RegisterController extends GetxController {
         return;
       }
 
+      // Membuat user baru menggunakan Firebase Authentication
       UserCredential userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
 
-      // Tunggu navigasi selesai sebelum membersihkan nilai isRegistering
+      // Membuat dokumen user di Cloud Firestore setelah user berhasil terdaftar
       await createUserDocument(userCredential);
 
-      // Navigasi ke halaman home hanya jika pendaftaran berhasil
+      // Navigasi ke halaman home jika pendaftaran berhasil
       await Get.offAllNamed('/home_page');
     } on FirebaseAuthException catch (e) {
+      // Menangkap kesalahan Firebase Authentication
       if (e.code == 'email-already-in-use') {
         Get.snackbar('Error', 'Email is already registered');
       } else {
@@ -49,11 +53,13 @@ class RegisterController extends GetxController {
       }
       isRegistering.value = false; // Set nilai kembali setelah kesalahan
     } catch (e) {
+      // Tangani kesalahan umum
       Get.snackbar('Error', 'An error occurred');
       isRegistering.value = false; // Set nilai kembali setelah kesalahan
     }
   }
 
+  // Method untuk memeriksa apakah email sudah terdaftar di Cloud Firestore
   Future<bool> isEmailAlreadyRegistered(String email) async {
     try {
       // Lakukan pencarian di Cloud Firestore
@@ -65,7 +71,7 @@ class RegisterController extends GetxController {
       // Jika ada dokumen yang ditemukan, email sudah terdaftar
       return query.docs.isNotEmpty;
     } catch (e) {
-      // Tangani kesalahan secara tepat
+      // Tangani kesalahan dengan mencetak log dan melempar pengecualian
       if (kDebugMode) {
         print('Error checking email registration: $e');
       }
@@ -73,6 +79,7 @@ class RegisterController extends GetxController {
     }
   }
 
+  // Method untuk membuat dokumen user di Cloud Firestore setelah berhasil mendaftar
   Future<void> createUserDocument(UserCredential userCredential) async {
     if (userCredential.user != null) {
       await FirebaseFirestore.instance
@@ -82,11 +89,12 @@ class RegisterController extends GetxController {
         'email': userCredential.user!.email,
         'username': usernameController.text,
         'passwordHash': passwordController.text
-            .hashCode, // Ini hanya contoh, perlu pertimbangan keamanan lebih lanjut
+            .hashCode, // Contoh implementasi, perlu pertimbangan keamanan yang lebih baik
       });
     }
   }
 
+  // Method untuk membersihkan nilai pada TextField setelah registrasi
   void clearTextFields() {
     usernameController.clear();
     emailController.clear();
@@ -96,7 +104,7 @@ class RegisterController extends GetxController {
 
   @override
   void dispose() {
-    // Bersihkan instance TextEditingController
+    // Membersihkan instance TextEditingController saat controller ditutup
     usernameController.dispose();
     emailController.dispose();
     passwordController.dispose();

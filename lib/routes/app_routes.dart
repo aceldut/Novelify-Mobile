@@ -7,8 +7,9 @@ import 'package:final_app/pages/profile/profil_page.dart';
 import 'package:final_app/pages/search_page.dart';
 import 'package:get/get.dart';
 
+/// Kelas `AppRoutes` berisi definisi nama-nama rute konstan dan pengaturan navigasi halaman menggunakan GetPage dari GetX.
 class AppRoutes {
-  // Define constant route names
+  // Mendefinisikan nama-nama rute konstan
   static const String auth = '/auth';
   static const String loginRegister = '/login_register_page';
   static const String home = '/home_page';
@@ -17,7 +18,7 @@ class AppRoutes {
   static const String library = '/library_page';
   static const String register = '/register_page';
 
-  // Define pages and routes using GetPage
+  // Mendefinisikan halaman-halaman dan rute menggunakan GetPage
   static final List<GetPage> routes = [
     GetPage(
       name: auth,

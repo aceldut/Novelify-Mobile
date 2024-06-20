@@ -14,12 +14,13 @@ class EditProfileController extends GetxController {
     usernameController = TextEditingController();
     emailController = TextEditingController();
 
-    // Load user data
+    // Memuat data pengguna saat kontroler diinisialisasi
     loadUserData();
   }
 
   @override
   void onClose() {
+    // Menghapus controller saat kontroler ditutup untuk mencegah memory leak
     usernameController.dispose();
     emailController.dispose();
     super.onClose();
@@ -31,10 +32,12 @@ class EditProfileController extends GetxController {
       DocumentSnapshot<Map<String, dynamic>> doc =
           await FirebaseFirestore.instance.collection('Users').doc(uid).get();
       if (doc.exists) {
+        // Mengisi nilai controller dengan data pengguna jika tersedia
         usernameController.text = doc.data()?['username'] ?? '';
         emailController.text = doc.data()?['email'] ?? '';
       }
     } catch (e) {
+      // Menangani error saat memuat data pengguna
       if (kDebugMode) {
         print('Error loading user data: $e');
       }
@@ -45,44 +48,48 @@ class EditProfileController extends GetxController {
     try {
       String uid = FirebaseAuth.instance.currentUser!.uid;
 
-      // Update Firestore
+      // Memperbarui Firestore dengan username dan email baru
       await FirebaseFirestore.instance.collection('Users').doc(uid).update({
         'username': usernameController.text.trim(),
         'email': emailController.text.trim(),
       });
 
-      // Update FirebaseAuth email if changed
+      // Memperbarui email di FirebaseAuth jika berubah
       if (emailController.text.trim() !=
           FirebaseAuth.instance.currentUser!.email) {
         await FirebaseAuth.instance.currentUser!
             .verifyBeforeUpdateEmail(emailController.text.trim());
       }
 
-      Get.snackbar('Success', 'Profile updated successfully');
-
-      // Navigate back to the profile page and reload data
-      Get.offAllNamed('/profil_page');
+      // Menampilkan snackbar sukses dan kembali ke halaman profil
+      Get.snackbar('Sukses', 'Profil berhasil diperbarui');
+      Get.offAllNamed('/profil_page'); // Kembali ke halaman profil
     } catch (e) {
+      // Menangani error saat memperbarui profil
       if (kDebugMode) {
         print('Error updating profile: $e');
       }
-      Get.snackbar('Error', 'Failed to update profile');
+      Get.snackbar('Error', 'Gagal memperbarui profil');
     }
   }
 
   Future<void> deleteAccount() async {
     try {
       String uid = FirebaseAuth.instance.currentUser!.uid;
+
+      // Menghapus data pengguna dari Firestore dan akun Firebase
       await FirebaseFirestore.instance.collection('Users').doc(uid).delete();
       await FirebaseAuth.instance.currentUser!.delete();
-      Get.snackbar('Success', 'Account deleted successfully');
-      // Tambahan: tambahkan logika navigasi atau tindakan setelah menghapus akun
-      Get.offAllNamed('/login');
+
+      // Menampilkan snackbar sukses dan navigasi ke halaman login
+      Get.snackbar('Sukses', 'Akun berhasil dihapus');
+      Get.offAllNamed('/login'); // Navigasi ke halaman login setelah hapus akun
     } catch (e) {
+      // Menangani error saat menghapus akun
       if (kDebugMode) {
         print('Error deleting account: $e');
       }
-      Get.snackbar('Error', 'Failed to delete account');
+      Get.snackbar('Error', 'Gagal menghapus akun');
     }
   }
 }

@@ -1,9 +1,10 @@
-import 'package:final_app/models/books.dart';
-import 'package:final_app/pages/book/detail_book_page.dart';
-import 'package:final_app/services/bookservice.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:final_app/models/books.dart';
+import 'package:final_app/pages/book/detail_book_page.dart';
+import 'package:final_app/services/bookservice.dart';
+import 'package:final_app/pages/category_books_page.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -17,6 +18,33 @@ class _SearchPageState extends State<SearchPage> {
   final BookService bookService = BookService();
   List<Book> searchResults = [];
   bool isSearching = false;
+
+  final List<Map<String, String>> categories = [
+    {
+      'name': 'Romantis',
+      'imagePath': 'assets/1.png',
+    },
+    {
+      'name': 'Thriller',
+      'imagePath': 'assets/2.png',
+    },
+    {
+      'name': 'Horor',
+      'imagePath': 'assets/3.png',
+    },
+    {
+      'name': 'Komedi',
+      'imagePath': 'assets/4.png',
+    },
+    {
+      'name': 'Misteri',
+      'imagePath': 'assets/5.png',
+    },
+    {
+      'name': 'Petualangan',
+      'imagePath': 'assets/6.png',
+    },
+  ];
 
   @override
   void initState() {
@@ -43,12 +71,13 @@ class _SearchPageState extends State<SearchPage> {
       isSearching = true;
     });
 
+    // Menjalankan pencarian buku berdasarkan query menggunakan BookService
     BookService().fetchMoreBooks(query).then((books) {
       setState(() {
         searchResults = books;
       });
     }).catchError((error) {
-      //handle error
+      // Handle error jika terjadi kesalahan dalam fetchMoreBooks
       setState(() {
         searchResults.clear();
       });
@@ -89,11 +118,12 @@ class _SearchPageState extends State<SearchPage> {
         automaticallyImplyLeading: false,
       ),
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: isSearching ? _buildSearchResults() : _buildKategoriGrid(),
+      body: isSearching ? _buildSearchResults() : _buildKategoriList(),
     );
   }
 
-  Widget _buildKategoriGrid() {
+  // Widget untuk menampilkan daftar kategori buku
+  Widget _buildKategoriList() {
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -105,38 +135,44 @@ class _SearchPageState extends State<SearchPage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(
-              height: 20,
+              height: 10,
             ),
-            GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 20,
-                    mainAxisSpacing: 10,
-                    childAspectRatio: 2),
-                itemCount: 8,
-                itemBuilder: (context, index) {
-                  return Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: Colors.white),
-                    width: 200,
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [Text('Kategori'), Text('Gambar')],
+            // ListView untuk menampilkan daftar kategori buku
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: categories.length,
+              itemBuilder: (context, index) {
+                final category = categories[index];
+                return GestureDetector(
+                  onTap: () {
+                    // Menavigasi ke halaman CategoryBooksPage dengan kategori yang dipilih
+                    Get.to(() =>
+                        CategoryBooksPage(categoryName: category['name']!));
+                  },
+                  child: Card(
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset(
+                        category['imagePath']!,
+                        fit: BoxFit.cover,
                       ),
                     ),
-                  );
-                })
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),
     );
   }
 
+  // Widget untuk menampilkan hasil pencarian buku
   Widget _buildSearchResults() {
     return ListView.builder(
       itemCount: searchResults.length,
@@ -144,32 +180,29 @@ class _SearchPageState extends State<SearchPage> {
         return GestureDetector(
           onTap: () async {
             try {
+              // Memuat detail buku menggunakan BookService
               Book bookDetail =
                   await bookService.fetchBookDetails(searchResults[index].id);
+              // Menavigasi ke halaman BookDetailPage dengan id buku yang dipilih
               Get.to(() => BookDetailPage(bookId: bookDetail.id));
             } catch (e) {
               debugPrint('Error fetching book details: $e');
             }
           },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 6.0,
-            ),
-            child: Container(
+          child: Card(
+            color: Colors.white,
+            margin: const EdgeInsets.all(10),
+            child: Padding(
               padding: const EdgeInsets.all(10),
-              margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(10),
-              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    width: 60, // sesuaikan lebar sesuai kebutuhan Anda
-                    height: 80, // sesuaikan tinggi sesuai kebutuhan Anda
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8.0),
                     child: Image.network(
                       searchResults[index].thumbnail,
+                      width: 60,
+                      height: 80,
                       fit: BoxFit.cover,
                     ),
                   ),

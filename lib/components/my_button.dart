@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class MyButton extends StatelessWidget {
   final String text;
-  final void Function()? onTap; // Mengubah tipe fungsi onTap menjadi nullable
+  final void Function()? onTap; // Tipe fungsi onTap menjadi nullable
 
   const MyButton({
-    super.key, // Menambahkan Key? key yang sesuai dengan konvensi
+    super.key,
     required this.text,
     required this.onTap,
   });
@@ -19,7 +19,7 @@ class MyButton extends StatelessWidget {
           child: ElevatedButton(
             onPressed: onTap, // Menggunakan onTap langsung tanpa perlu ()
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepOrange, // Atur warna latar belakang
+              backgroundColor: Colors.deepOrange,
             ),
             child: Text(
               text,

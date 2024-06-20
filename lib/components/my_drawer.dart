@@ -3,25 +3,26 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class MyDrawer extends StatefulWidget {
-  const MyDrawer({super.key});
+  const MyDrawer({Key? key});
 
   @override
   MyDrawerState createState() => MyDrawerState();
 }
 
 class MyDrawerState extends State<MyDrawer> {
-  bool _loggingOut = false; // Track if logout process is ongoing
+  bool _loggingOut = false; // Memantau proses logout
 
-  // Logout user
+  // Fungsi untuk logout
   Future<void> logout() async {
     setState(() {
-      _loggingOut = true; // Start logout process, set loading indicator
+      _loggingOut =
+          true; // Memulai proses logout, menampilkan indikator loading
     });
 
     try {
       await FirebaseAuth.instance.signOut();
 
-      // Navigate to login page after successful logout and remove all previous routes
+      // Navigasi ke halaman login setelah logout berhasil dan menghapus semua rute sebelumnya
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(
           context,
@@ -31,12 +32,12 @@ class MyDrawerState extends State<MyDrawer> {
       }
     } catch (e) {
       if (kDebugMode) {
-        print("Logout error: $e");
+        print("Error logout: $e");
       }
-      // Handle logout error here
-      // You can show a snackbar or display an error message
+      // Tangani kesalahan logout di sini
+      // Anda bisa menampilkan snackbar atau pesan kesalahan
     } finally {
-      // Ensure to reset state and dismiss loading indicator
+      // Pastikan mereset state dan menutup indikator loading
       if (mounted) {
         setState(() {
           _loggingOut = false;
@@ -55,7 +56,7 @@ class MyDrawerState extends State<MyDrawer> {
           Column(
             children: [
               const SizedBox(height: 25),
-              // Profile tile
+              // Tile profil
               Padding(
                 padding: const EdgeInsets.only(left: 25.0),
                 child: ListTile(
@@ -65,17 +66,17 @@ class MyDrawerState extends State<MyDrawer> {
                     child: Text('P R O F I L'),
                   ),
                   onTap: () {
-                    // Pop drawer
+                    // Tutup drawer
                     Navigator.pop(context);
 
-                    // Navigate to profile page
+                    // Navigasi ke halaman profil
                     Navigator.pushNamed(context, '/profil_page');
                   },
                 ),
               ),
             ],
           ),
-          // Logout tile
+          // Tile logout
           Padding(
             padding: const EdgeInsets.only(left: 25.0, bottom: 25),
             child: ListTile(
@@ -85,12 +86,12 @@ class MyDrawerState extends State<MyDrawer> {
                 child: Text('K E L U A R'),
               ),
               onTap: _loggingOut
-                  ? null // Disable tap when logging out
+                  ? null // Menonaktifkan tap saat proses logout berlangsung
                   : () {
-                      // Pop drawer
+                      // Tutup drawer
                       Navigator.pop(context);
 
-                      // Initiate logout process
+                      // Memulai proses logout
                       logout();
                     },
             ),

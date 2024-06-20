@@ -5,18 +5,21 @@ import 'package:final_app/components/my_button.dart';
 import 'package:final_app/controllers/login_controller.dart';
 
 class LoginPage extends StatelessWidget {
-  final void Function()? onTap;
+  final void Function()?
+      onTap; // Fungsi callback yang dipanggil saat pengguna ingin mendaftar
 
   const LoginPage({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    // Menggunakan GetX untuk mengelola state LoginController
     final LoginController loginController = Get.put(LoginController());
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: Stack(
         children: [
+          // Menggunakan LayoutBuilder untuk membuat tampilan responsif
           LayoutBuilder(
             builder: (context, constraints) {
               return Center(
@@ -26,11 +29,13 @@ class LoginPage extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        // Menampilkan logo
                         Image.asset(
                           'assets/logo.png',
                           width: constraints.maxWidth * 0.4,
                         ),
                         const SizedBox(height: 20),
+                        // Menampilkan judul
                         const Text(
                           "MASUK",
                           style: TextStyle(
@@ -39,34 +44,21 @@ class LoginPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 20),
+                        // Menampilkan TextField untuk email
                         MyTextfield(
                           hintText: "Email",
                           obscureText: false,
                           controller: loginController.emailController,
                         ),
                         const SizedBox(height: 10),
+                        // Menampilkan TextField untuk password
                         MyTextfield(
                           hintText: "Password",
                           obscureText: true,
                           controller: loginController.passwordController,
                         ),
                         const SizedBox(height: 20),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 2.0),
-                            child: Text(
-                              "Lupa Password?",
-                              style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .inversePrimary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 30),
+                        // Menampilkan tombol login
                         SizedBox(
                           width: MediaQuery.of(context).size.width * 0.9,
                           height: 50,
@@ -78,6 +70,7 @@ class LoginPage extends StatelessWidget {
                               )),
                         ),
                         const SizedBox(height: 30),
+                        // Menampilkan teks untuk pindah ke halaman pendaftaran
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -94,8 +87,8 @@ class LoginPage extends StatelessWidget {
                               child: const Text(
                                 " Daftar",
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blue),
                               ),
                             )
                           ],
@@ -107,6 +100,7 @@ class LoginPage extends StatelessWidget {
               );
             },
           ),
+          // Menampilkan loading spinner saat login sedang diproses
           Obx(() {
             if (loginController.isLoading.value) {
               return Container(

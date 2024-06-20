@@ -9,52 +9,60 @@ class LoginController extends GetxController {
 
   @override
   void onClose() {
+    // Membersihkan controller saat kontroler ditutup untuk mencegah memory leak
     emailController.dispose();
     passwordController.dispose();
     super.onClose();
   }
 
   Future<void> loginUser() async {
+    // Validasi input sebelum melakukan login
     if (_validateInputs()) {
       isLoading.value = true;
       try {
+        // Melakukan login dengan Firebase Authentication
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text.trim(),
           password: passwordController.text.trim(),
         );
 
-        // Setelah berhasil login, langsung navigasi ke halaman '/home'
+        // Navigasi ke halaman '/home' setelah login berhasil
         Get.offAllNamed('/home_page');
       } on FirebaseAuthException catch (e) {
+        // Menangkap kesalahan Firebase Authentication dan menampilkan pesan kesalahan yang sesuai
         String errorMessage = _mapFirebaseAuthErrorCode(e.code);
         Get.snackbar('Error', errorMessage);
       } catch (e) {
-        Get.snackbar('Error', 'An error occurred');
+        // Menangkap kesalahan umum selama proses login
+        Get.snackbar('Error', 'Terjadi kesalahan');
       } finally {
+        // Menghentikan loading setelah proses selesai, baik berhasil maupun gagal
         isLoading.value = false;
       }
     }
   }
 
   bool _validateInputs() {
+    // Validasi bahwa email dan password tidak boleh kosong
     if (emailController.text.trim().isEmpty ||
         passwordController.text.isEmpty) {
-      Get.snackbar('Error', 'Email and Password cannot be empty');
+      Get.snackbar('Error', 'Email dan Password tidak boleh kosong');
       return false;
     }
     return true;
   }
 
   String _mapFirebaseAuthErrorCode(String code) {
+    // Mapping kode kesalahan Firebase Authentication ke pesan kesalahan yang lebih deskriptif
     switch (code) {
       case 'user-not-found':
-        return 'No user found for that email';
+        return 'Tidak ada pengguna dengan email tersebut';
       case 'wrong-password':
-        return 'Wrong password provided for that user';
+        return 'Password yang dimasukkan salah';
       case 'too-many-requests':
-        return 'Too many unsuccessful login attempts. Please try again later.';
+        return 'Terlalu banyak percobaan login yang gagal. Silakan coba lagi nanti.';
       default:
-        return 'Login failed: $code';
+        return 'Login gagal: $code';
     }
   }
 }

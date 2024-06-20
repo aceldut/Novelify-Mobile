@@ -1,11 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:final_app/services/bookservice.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:final_app/models/books.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+// Kelas BookDetailPage adalah StatefulWidget yang menerima bookId sebagai parameter
 class BookDetailPage extends StatefulWidget {
   final String bookId;
 
@@ -22,7 +24,7 @@ class BookDetailPageState extends State<BookDetailPage> {
   late bool isFavorite;
   late Book bookDetail;
   bool isLoading = true;
-  bool isWebViewVisible = false; // To toggle WebView visibility
+  bool isWebViewVisible = false; // Untuk mengatur visibilitas WebView
   final BookService bookService = BookService();
 
   @override
@@ -31,16 +33,32 @@ class BookDetailPageState extends State<BookDetailPage> {
     fetchBookDetails();
   }
 
+  // Fungsi untuk mengambil detail buku dari layanan buku
   Future<void> fetchBookDetails() async {
     try {
       final book = await bookService.fetchBookDetails(widget.bookId);
-      final prefs = await SharedPreferences.getInstance();
-      final favoriteStatus = prefs.getBool(book.id) ?? false;
-      setState(() {
-        bookDetail = book;
-        isFavorite = favoriteStatus;
-        isLoading = false;
-      });
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final favoritesRef = FirebaseFirestore.instance
+            .collection('Users')
+            .doc(user.uid)
+            .collection('favorites');
+        final favoriteDoc = await favoritesRef.doc(book.id).get();
+        final favoriteStatus = favoriteDoc.exists;
+        if (!mounted) return;
+        setState(() {
+          bookDetail = book;
+          isFavorite = favoriteStatus;
+          isLoading = false;
+        });
+      } else {
+        if (!mounted) return;
+        setState(() {
+          bookDetail = book;
+          isFavorite = false;
+          isLoading = false;
+        });
+      }
     } catch (e) {
       if (kDebugMode) {
         print('Failed to load book details: $e');
@@ -48,39 +66,146 @@ class BookDetailPageState extends State<BookDetailPage> {
     }
   }
 
+  // Fungsi untuk mengubah status favorit
   void toggleFavoriteStatus() async {
     setState(() {
       isFavorite = !isFavorite;
     });
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool(bookDetail.id, isFavorite);
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final favoritesRef = FirebaseFirestore.instance
+          .collection('Users')
+          .doc(user.uid)
+          .collection('favorites');
+
+      if (isFavorite) {
+        // Menambahkan buku ke favorit
+        favoritesRef.doc(bookDetail.id).set({
+          'id': bookDetail.id,
+          'title': bookDetail.title,
+          'authors': bookDetail.authors,
+          'thumbnail': bookDetail.thumbnail,
+        });
+      } else {
+        // Menghapus buku dari favorit
+        favoritesRef.doc(bookDetail.id).delete();
+      }
+    }
   }
 
+  // Fungsi untuk mengubah visibilitas WebView
   void toggleWebView() {
     setState(() {
       isWebViewVisible = !isWebViewVisible;
     });
+
+    if (!isWebViewVisible) {
+      addToHistory();
+    }
+  }
+
+  // Fungsi untuk menambahkan buku ke riwayat
+  void addToHistory() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final historyRef = FirebaseFirestore.instance
+          .collection('Users')
+          .doc(user.uid)
+          .collection('history');
+
+      try {
+        await historyRef.doc(bookDetail.id).set({
+          'id': bookDetail.id,
+          'title': bookDetail.title,
+          'authors': bookDetail.authors,
+          'thumbnail': bookDetail.thumbnail,
+          'publishedDate': bookDetail.publishedDate,
+          'timestamp':
+              FieldValue.serverTimestamp(), // Menyimpan timestamp saat ini
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Book added to history')),
+          );
+        }
+      } catch (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to add book to history: $error')),
+          );
+        }
+      }
+    }
+  }
+
+  // Fungsi untuk mengunduh buku
+  void downloadBook() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final downloadsRef = FirebaseFirestore.instance
+          .collection('Users')
+          .doc(user.uid)
+          .collection('downloads');
+
+      // Memeriksa apakah buku sudah diunduh
+      final existingDownload = await downloadsRef.doc(bookDetail.id).get();
+      if (existingDownload.exists) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Book already in the library')),
+          );
+        }
+      } else {
+        // Menambahkan buku ke unduhan
+        try {
+          await downloadsRef.doc(bookDetail.id).set({
+            'id': bookDetail.id,
+            'title': bookDetail.title,
+            'authors': bookDetail.authors,
+            'thumbnail': bookDetail.thumbnail,
+            'publishedDate': bookDetail.publishedDate,
+          });
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Book downloaded successfully')),
+            );
+          }
+        } catch (error) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to download book: $error')),
+            );
+          }
+        }
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text(
-            isLoading ? 'Loading...' : bookDetail.title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        title: Text(
+          isLoading ? 'Loading...' : bookDetail.title,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        ),
+        backgroundColor: Colors.orange.shade400,
+        elevation: 3,
+        shape: const ContinuousRectangleBorder(
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20))),
+        shadowColor: Colors.white,
+        actions: <Widget>[
+          IconButton(
+            onPressed: downloadBook,
+            icon: const Icon(Icons.download),
           ),
-          backgroundColor: Colors.orange.shade400,
-          elevation: 3,
-          shape: const ContinuousRectangleBorder(
-              borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20))),
-          shadowColor: Colors.white,
-          actions: <Widget>[
-            IconButton(onPressed: () {}, icon: const Icon(Icons.download))
-          ]),
+        ],
+      ),
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -93,6 +218,7 @@ class BookDetailPageState extends State<BookDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // Menampilkan gambar thumbnail buku
                         Center(
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(8),
@@ -100,11 +226,12 @@ class BookDetailPageState extends State<BookDetailPage> {
                               imageUrl: bookDetail.thumbnail,
                               width: 220,
                               height: 250,
-                              fit: BoxFit.cover,
+                              fit: BoxFit.fill,
                             ),
                           ),
                         ),
                         const SizedBox(height: 20),
+                        // Menampilkan penulis buku
                         Row(
                           children: [
                             const Text(
@@ -122,6 +249,7 @@ class BookDetailPageState extends State<BookDetailPage> {
                           ],
                         ),
                         const SizedBox(height: 20),
+                        // Menampilkan tanggal publikasi dan jumlah halaman
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -157,6 +285,7 @@ class BookDetailPageState extends State<BookDetailPage> {
                           ],
                         ),
                         const SizedBox(height: 10),
+                        // Menampilkan deskripsi buku
                         const Text(
                           'Deskripsi: ',
                           style: TextStyle(
@@ -168,6 +297,7 @@ class BookDetailPageState extends State<BookDetailPage> {
                           textAlign: TextAlign.justify,
                         ),
                         const SizedBox(height: 10),
+                        // Tombol untuk membaca buku dan menambahkan ke favorit
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -206,6 +336,7 @@ class BookDetailPageState extends State<BookDetailPage> {
                     ),
                   ),
                 ),
+                // Menampilkan WebView untuk membaca buku
                 Visibility(
                   visible: isWebViewVisible,
                   child: WebView(

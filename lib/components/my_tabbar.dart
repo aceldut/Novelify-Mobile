@@ -1,6 +1,6 @@
-import 'package:final_app/pages/library/favorit_content_page.dart';
-import 'package:final_app/pages/library/histori_content_page.dart';
 import 'package:flutter/material.dart';
+import 'package:final_app/pages/library/favorit_content_page.dart';
+import 'package:final_app/pages/library/download_content_page.dart';
 
 class MyTabBar extends StatefulWidget {
   const MyTabBar({super.key});
@@ -10,8 +10,7 @@ class MyTabBar extends StatefulWidget {
 }
 
 class _MyTabBarState extends State<MyTabBar> {
-  List<String> tabs = ["Histori", "Favorit"];
-
+  List<String> tabs = ["Favorit", "Download"];
   int current = 0;
 
   double changePositionedOfLine() {
@@ -19,8 +18,7 @@ class _MyTabBarState extends State<MyTabBar> {
       case 0:
         return 0;
       case 1:
-        return 82;
-
+        return 76;
       default:
         return 0;
     }
@@ -31,8 +29,7 @@ class _MyTabBarState extends State<MyTabBar> {
       case 0:
         return 60;
       case 1:
-        return 60;
-
+        return 90;
       default:
         return 0;
     }
@@ -41,10 +38,9 @@ class _MyTabBarState extends State<MyTabBar> {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    return SizedBox(
-      width: size.width,
-      height: size.height,
-      child: Column(
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: Column(
         children: [
           SizedBox(
             width: size.width,
@@ -59,29 +55,31 @@ class _MyTabBarState extends State<MyTabBar> {
                     width: size.width,
                     height: size.height * 0.04,
                     child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: tabs.length,
-                        itemBuilder: (context, index) {
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                current = index;
-                              });
-                            },
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                  left: current == 0 ? 10 : 25, top: 5),
-                              child: Text(
-                                tabs[index],
-                                style: TextStyle(
-                                    fontSize: current == index ? 18 : 14,
-                                    fontWeight: current == index
-                                        ? FontWeight.w400
-                                        : FontWeight.w300),
+                      scrollDirection: Axis.horizontal,
+                      itemCount: tabs.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              current = index;
+                            });
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                left: current == 0 ? 10 : 25, top: 5),
+                            child: Text(
+                              tabs[index],
+                              style: TextStyle(
+                                fontSize: current == index ? 18 : 14,
+                                fontWeight: current == index
+                                    ? FontWeight.w700
+                                    : FontWeight.w300,
                               ),
                             ),
-                          );
-                        }),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
                 AnimatedPositioned(
@@ -96,18 +94,18 @@ class _MyTabBarState extends State<MyTabBar> {
                     width: changeContainerWidth(),
                     height: size.height * 0.008,
                     decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.orangeAccent),
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.orangeAccent,
+                    ),
                   ),
                 )
               ],
             ),
           ),
           Expanded(
-            child: current == 0
-                ? const HistroriContentPage()
-                : const FavoritContentPage(),
-          )
+              child: current == 0
+                  ? const FavoritContentPage()
+                  : const DownloadContentPage())
         ],
       ),
     );

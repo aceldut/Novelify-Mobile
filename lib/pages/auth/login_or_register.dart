@@ -2,6 +2,7 @@ import 'package:final_app/pages/auth/login_page.dart';
 import 'package:final_app/pages/auth/register_page.dart';
 import 'package:flutter/material.dart';
 
+// Kelas LoginOrRegister adalah StatefulWidget
 class LoginOrRegister extends StatefulWidget {
   const LoginOrRegister({super.key});
 

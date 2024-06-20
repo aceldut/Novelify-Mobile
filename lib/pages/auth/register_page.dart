@@ -5,12 +5,14 @@ import 'package:final_app/components/my_button.dart';
 import 'package:final_app/components/my_textfield.dart';
 
 class RegisterPage extends StatelessWidget {
-  final void Function()? onTap;
+  final void Function()?
+      onTap; // Fungsi callback yang dipanggil saat pengguna ingin masuk
 
   const RegisterPage({super.key, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    // Menggunakan GetX untuk mengelola state RegisterController
     final RegisterController registerController = Get.find();
 
     return Scaffold(
@@ -23,11 +25,13 @@ class RegisterPage extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  // Menampilkan logo
                   Image.asset(
                     'assets/logo.png',
                     width: MediaQuery.of(context).size.width * 0.4,
                   ),
                   const SizedBox(height: 20),
+                  // Menampilkan judul
                   const Text(
                     "DAFTAR",
                     style: TextStyle(
@@ -36,30 +40,35 @@ class RegisterPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
+                  // Menampilkan TextField untuk username
                   MyTextfield(
                     hintText: "Username",
                     obscureText: false,
                     controller: registerController.usernameController,
                   ),
                   const SizedBox(height: 10),
+                  // Menampilkan TextField untuk email
                   MyTextfield(
                     hintText: "Email",
                     obscureText: false,
                     controller: registerController.emailController,
                   ),
                   const SizedBox(height: 10),
+                  // Menampilkan TextField untuk password
                   MyTextfield(
                     hintText: "Password",
                     obscureText: true,
                     controller: registerController.passwordController,
                   ),
                   const SizedBox(height: 10),
+                  // Menampilkan TextField untuk konfirmasi password
                   MyTextfield(
                     hintText: "Konfirmasi Password",
                     obscureText: true,
                     controller: registerController.confirmPwController,
                   ),
                   const SizedBox(height: 20),
+                  // Menampilkan tombol daftar
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.9,
                     height: 50,
@@ -69,6 +78,7 @@ class RegisterPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 30),
+                  // Menampilkan teks untuk pindah ke halaman login
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -80,6 +90,7 @@ class RegisterPage extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: () {
+                          // Membersihkan TextField dan memanggil fungsi onTap
                           registerController.clearTextFields();
                           if (onTap != null) {
                             onTap!();
@@ -87,7 +98,8 @@ class RegisterPage extends StatelessWidget {
                         },
                         child: const Text(
                           " Masuk",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.blue),
                         ),
                       ),
                     ],
@@ -96,6 +108,7 @@ class RegisterPage extends StatelessWidget {
               ),
             ),
           ),
+          // Menampilkan loading spinner saat proses pendaftaran sedang berlangsung
           Obx(() {
             if (registerController.isRegistering.value) {
               return Container(

@@ -1,29 +1,30 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:final_app/pages/book/detail_book_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:final_app/pages/book/detail_book_page.dart';
 
-class FavoritContentPage extends StatelessWidget {
-  const FavoritContentPage({super.key});
+// Halaman DownloadContentPage merupakan StatelessWidget
+class DownloadContentPage extends StatelessWidget {
+  const DownloadContentPage({super.key});
 
-  // Fungsi untuk mengambil daftar buku favorit pengguna dari Firestore
-  Future<List<Map<String, dynamic>>> fetchFavorites() async {
+  // Fungsi untuk mengambil daftar buku yang diunduh pengguna dari Firestore
+  Future<List<Map<String, dynamic>>> fetchDownloads() async {
     // Mendapatkan pengguna yang sedang masuk
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       throw Exception('User not logged in');
     }
 
-    // Mengambil dokumen favorit dari Firestore
-    final favoritesSnapshot = await FirebaseFirestore.instance
+    // Mengambil dokumen unduhan dari Firestore
+    final downloadsSnapshot = await FirebaseFirestore.instance
         .collection('Users')
         .doc(user.uid)
-        .collection('favorites')
+        .collection('downloads')
         .get();
 
     // Mengonversi dokumen yang diambil menjadi daftar peta (map)
-    return favoritesSnapshot.docs.map((doc) => doc.data()).toList();
+    return downloadsSnapshot.docs.map((doc) => doc.data()).toList();
   }
 
   @override
@@ -34,7 +35,7 @@ class FavoritContentPage extends StatelessWidget {
 
       // FutureBuilder untuk menangani pengambilan data secara asinkron
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: fetchFavorites(),
+        future: fetchDownloads(),
         builder: (context, snapshot) {
           // Menampilkan spinner saat menunggu data
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -42,19 +43,19 @@ class FavoritContentPage extends StatelessWidget {
           }
           // Menampilkan pesan kesalahan jika terjadi error
           else if (snapshot.hasError) {
-            return const Center(child: Text('Error loading favorites'));
+            return const Center(child: Text('Error loading downloads'));
           }
           // Menampilkan pesan jika tidak ada data
           else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No favorite books found'));
+            return const Center(child: Text('No downloaded books found'));
           }
-          // Menampilkan daftar buku favorit jika data tersedia
+          // Menampilkan daftar buku yang diunduh jika data tersedia
           else {
-            final favoriteBooks = snapshot.data!;
+            final downloadedBooks = snapshot.data!;
             return ListView.builder(
-              itemCount: favoriteBooks.length,
+              itemCount: downloadedBooks.length,
               itemBuilder: (context, index) {
-                final book = favoriteBooks[index];
+                final book = downloadedBooks[index];
                 return GestureDetector(
                   onTap: () async {
                     try {

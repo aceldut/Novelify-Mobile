@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:final_app/components/my_button.dart';
-import 'package:final_app/pages/profile/edit_profile_page.dart';
+import 'package:final_app/pages/profile/history_book_page.dart';
+import 'package:final_app/pages/profile/informasi_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:final_app/repository/auth_repository/auth.dart'; // Import AuthController
+import 'package:final_app/repository/auth_repository/auth.dart';
 
 class ProfilPage extends StatefulWidget {
   const ProfilPage({super.key});
@@ -18,6 +18,7 @@ class _ProfilPageState extends State<ProfilPage> {
   final AuthController authController =
       Get.put(AuthController()); // Inisialisasi AuthController
 
+  // Mengambil detail pengguna dari Firestore berdasarkan UID
   Future<Map<String, dynamic>?> getUserDetails() async {
     try {
       DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore
@@ -37,6 +38,7 @@ class _ProfilPageState extends State<ProfilPage> {
 
   bool _loggingOut = false;
 
+  // Metode untuk logout pengguna
   Future<void> _signOut() async {
     setState(() {
       _loggingOut = true;
@@ -46,6 +48,7 @@ class _ProfilPageState extends State<ProfilPage> {
       await authController.signOut();
       if (!mounted) return;
 
+      // Navigasi kembali ke halaman login/register setelah logout berhasil
       Navigator.pushNamedAndRemoveUntil(
         context,
         '/login_register_page',
@@ -55,7 +58,7 @@ class _ProfilPageState extends State<ProfilPage> {
       if (kDebugMode) {
         print("Logout error: $e");
       }
-      // Handle logout error here
+      // Handle error logout di sini jika diperlukan
     } finally {
       if (mounted) {
         setState(() {
@@ -69,14 +72,17 @@ class _ProfilPageState extends State<ProfilPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Profil"),
+        title: const Text(
+          "Profil",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         backgroundColor: Colors.orange.shade400,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Get.offAllNamed(
-                '/home_page'); // Ensure this onPressed callback calls Get.back()
+                '/home_page'); // Pastikan onPressed ini memanggil Get.back()
           },
         ),
       ),
@@ -132,17 +138,6 @@ class _ProfilPageState extends State<ProfilPage> {
                       user['email'],
                       style: TextStyle(color: Colors.grey[600]),
                     ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: 200,
-                      height: 50,
-                      child: MyButton(
-                        text: 'Edit Profil',
-                        onTap: () {
-                          Get.to(() => EditProfilePage());
-                        },
-                      ),
-                    ),
                     const SizedBox(height: 30),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -153,7 +148,9 @@ class _ProfilPageState extends State<ProfilPage> {
                     const SizedBox(height: 10),
                     // Informasi
                     ListTile(
-                      onTap: () {},
+                      onTap: () {
+                        Get.to(() => const InformasiPage());
+                      },
                       leading: Container(
                         width: 30,
                         height: 30,
@@ -167,6 +164,38 @@ class _ProfilPageState extends State<ProfilPage> {
                         ),
                       ),
                       title: const Text('Informasi'),
+                      trailing: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          color: Colors.grey.withOpacity(0.1),
+                        ),
+                        child: const Icon(
+                          Iconsax.arrow_right_3,
+                          size: 18,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                    // Histori
+                    ListTile(
+                      onTap: () {
+                        Get.to(() => const HistoryBookPage());
+                      },
+                      leading: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100),
+                          color: Colors.deepPurpleAccent.withOpacity(0.1),
+                        ),
+                        child: const Icon(
+                          Icons.history_outlined,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      title: const Text('Histori'),
                       trailing: Container(
                         width: 30,
                         height: 30,
@@ -219,6 +248,7 @@ class _ProfilPageState extends State<ProfilPage> {
               ),
             );
           } else {
+            // No data
             return const Text("Data Tidak Ada");
           }
         },

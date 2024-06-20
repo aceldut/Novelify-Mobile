@@ -7,6 +7,8 @@ import 'package:final_app/pages/book/detail_book_page.dart';
 import 'package:final_app/repository/auth_repository/auth.dart';
 import 'package:final_app/services/bookservice.dart';
 
+/// Halaman `HomePage` adalah halaman utama yang menampilkan daftar buku trending
+/// dan informasi pengguna yang sedang login.
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -39,6 +41,7 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
     super.dispose();
   }
 
+  /// Listener untuk mendeteksi scroll terakhir dan memuat lebih banyak buku jika tersedia.
   void _scrollListener() {
     if (_scrollController.position.pixels ==
             _scrollController.position.maxScrollExtent &&
@@ -48,11 +51,13 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
     }
   }
 
+  /// Memuat daftar buku dari `bookService` berdasarkan kata kunci 'Novel'.
   Future<void> _loadBooks() async {
     if (!isLoading && hasMoreBooks) {
       setState(() => isLoading = true);
       try {
-        List<Book> newBooks = await bookService.fetchMoreBooks('novel');
+        List<Book> newBooks = await bookService.fetchMoreBooks('Novel');
+        if (!mounted) return; // Cek apakah widget masih terpasang
         setState(() {
           books.addAll(newBooks);
           page++;
@@ -60,6 +65,7 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
           hasMoreBooks = newBooks.isNotEmpty;
         });
       } catch (e) {
+        if (!mounted) return; // Cek apakah widget masih terpasang
         debugPrint('Error fetching books: $e');
         setState(() => isLoading = false);
       }
@@ -102,7 +108,7 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
-                // const SizedBox(height: 20),
+                const SizedBox(height: 20),
                 _buildBookGrid(),
                 if (isLoading) const Center(child: CircularProgressIndicator()),
               ],
@@ -113,6 +119,7 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
     );
   }
 
+  /// Membangun bagian header dengan menyertakan salam kepada pengguna.
   Widget _buildHeader(BuildContext context, String username) {
     return Material(
       color: Colors.orange.shade400,
@@ -170,6 +177,7 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
     );
   }
 
+  /// Membangun grid untuk menampilkan daftar buku.
   Widget _buildBookGrid() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -201,6 +209,7 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
     );
   }
 
+  /// Membangun item buku dalam grid dengan gambar buku dari URL dan judul buku.
   Widget _buildBookItem(BuildContext context, Book book) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -224,7 +233,7 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
                 errorWidget: (context, url, error) => const Icon(Icons.error),
                 width: 220,
                 height: 250,
-                fit: BoxFit.cover,
+                fit: BoxFit.fill,
               ),
             ),
           ),
