@@ -1,4 +1,4 @@
-# final_app
+# Novelify - App
 
 A new Flutter project.
 
