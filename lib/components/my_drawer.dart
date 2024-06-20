@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class MyDrawer extends StatefulWidget {
-  const MyDrawer({Key? key});
+  const MyDrawer({super.key});
 
   @override
   MyDrawerState createState() => MyDrawerState();
