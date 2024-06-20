@@ -82,11 +82,8 @@ class RegisterPage extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
+                      const Text(
                         "Punya Akun?",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.inversePrimary,
-                        ),
                       ),
                       GestureDetector(
                         onTap: () {

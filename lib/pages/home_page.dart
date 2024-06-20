@@ -108,7 +108,6 @@ class HomePageState extends State<HomePage> with AutomaticKeepAliveClientMixin {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
-                const SizedBox(height: 20),
                 _buildBookGrid(),
                 if (isLoading) const Center(child: CircularProgressIndicator()),
               ],

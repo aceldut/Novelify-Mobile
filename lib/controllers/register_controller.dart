@@ -47,7 +47,7 @@ class RegisterController extends GetxController {
     } on FirebaseAuthException catch (e) {
       // Menangkap kesalahan Firebase Authentication
       if (e.code == 'email-already-in-use') {
-        Get.snackbar('Error', 'Email is already registered');
+        Get.snackbar('Error', 'Email Telah Digunakan');
       } else {
         Get.snackbar('Error', e.message ?? 'An error occurred');
       }

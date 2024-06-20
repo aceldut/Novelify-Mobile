@@ -61,7 +61,7 @@ class BookDetailPageState extends State<BookDetailPage> {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Failed to load book details: $e');
+        print('Gagal Memuat Detail Buku: $e');
       }
     }
   }
@@ -100,7 +100,7 @@ class BookDetailPageState extends State<BookDetailPage> {
       isWebViewVisible = !isWebViewVisible;
     });
 
-    if (!isWebViewVisible) {
+    if (isWebViewVisible) {
       addToHistory();
     }
   }
@@ -124,16 +124,10 @@ class BookDetailPageState extends State<BookDetailPage> {
           'timestamp':
               FieldValue.serverTimestamp(), // Menyimpan timestamp saat ini
         });
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Book added to history')),
-          );
-        }
       } catch (error) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to add book to history: $error')),
+            SnackBar(content: Text('Gagal Menambahkan Buku di History: $error')),
           );
         }
       }
@@ -154,7 +148,7 @@ class BookDetailPageState extends State<BookDetailPage> {
       if (existingDownload.exists) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Book already in the library')),
+            const SnackBar(content: Text('Buku Sudah Tersimpan Di Perpustakaan')),
           );
         }
       } else {
@@ -170,13 +164,13 @@ class BookDetailPageState extends State<BookDetailPage> {
 
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Book downloaded successfully')),
+              const SnackBar(content: Text('Buku Berhasil Didownload')),
             );
           }
         } catch (error) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Failed to download book: $error')),
+              SnackBar(content: Text('Gagal Mendownload buku: $error')),
             );
           }
         }
@@ -189,7 +183,7 @@ class BookDetailPageState extends State<BookDetailPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          isLoading ? 'Loading...' : bookDetail.title,
+          isLoading ? 'Memuat...' : bookDetail.title,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
         backgroundColor: Colors.orange.shade400,
@@ -312,9 +306,9 @@ class BookDetailPageState extends State<BookDetailPage> {
                             ElevatedButton(
                               onPressed: toggleFavoriteStatus,
                               style: ButtonStyle(backgroundColor:
-                                  WidgetStateProperty.resolveWith<Color>(
-                                      (Set<WidgetState> states) {
-                                if (states.contains(WidgetState.pressed)) {
+                                  MaterialStateProperty.resolveWith<Color>(
+                                      (Set<MaterialState> states) {
+                                if (states.contains(MaterialState.pressed)) {
                                   // Warna ketika tombol ditekan
                                   return isFavorite
                                       ? Colors.red.shade700

@@ -61,6 +61,14 @@ class LoginController extends GetxController {
         return 'Password yang dimasukkan salah';
       case 'too-many-requests':
         return 'Terlalu banyak percobaan login yang gagal. Silakan coba lagi nanti.';
+      case 'invalid-email':
+        return 'Email tidak valid';
+      case 'user-disabled':
+        return 'Pengguna dengan email ini telah dinonaktifkan';
+      case 'operation-not-allowed':
+        return 'Operasi ini tidak diizinkan';
+      case 'network-request-failed':
+        return 'Koneksi internet bermasalah. Periksa jaringan Anda dan coba lagi';
       default:
         return 'Login gagal: $code';
     }

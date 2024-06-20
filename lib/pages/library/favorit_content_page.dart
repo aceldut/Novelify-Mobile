@@ -42,11 +42,11 @@ class FavoritContentPage extends StatelessWidget {
           }
           // Menampilkan pesan kesalahan jika terjadi error
           else if (snapshot.hasError) {
-            return const Center(child: Text('Error loading favorites'));
+            return const Center(child: Text('Error Memuat Buku'));
           }
           // Menampilkan pesan jika tidak ada data
           else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No favorite books found'));
+            return const Center(child: Text('Masih Kosong'));
           }
           // Menampilkan daftar buku favorit jika data tersedia
           else {

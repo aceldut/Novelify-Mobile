@@ -43,11 +43,11 @@ class DownloadContentPage extends StatelessWidget {
           }
           // Menampilkan pesan kesalahan jika terjadi error
           else if (snapshot.hasError) {
-            return const Center(child: Text('Error loading downloads'));
+            return const Center(child: Text('Error Memuat Buku Yang Didownload'));
           }
           // Menampilkan pesan jika tidak ada data
           else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No downloaded books found'));
+            return const Center(child: Text('Masih Kosong'));
           }
           // Menampilkan daftar buku yang diunduh jika data tersedia
           else {
