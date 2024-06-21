@@ -1,7 +1,9 @@
 // Mengimpor paket yang diperlukan
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:final_app/pages/book/detail_book_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class HistoryBookPage extends StatelessWidget {
   const HistoryBookPage({super.key});
@@ -62,53 +64,63 @@ class HistoryBookPage extends StatelessWidget {
               itemCount: historyBooks.length,
               itemBuilder: (context, index) {
                 final book = historyBooks[index];
-                return Card(
-                  color: Colors.white,
-                  margin: const EdgeInsets.all(10),
-                  child: Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: Row(
-                      children: [
-                        // Menampilkan gambar thumbnail buku
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8.0),
-                          child: Image.network(
-                            book['thumbnail'],
-                            width: 60,
-                            height: 80,
-                            fit: BoxFit.cover,
+                return GestureDetector(
+                  onTap:  () async {
+                    try {
+                      // Navigasi ke halaman detail buku menggunakan Get
+                      Get.to(() => BookDetailPage(bookId: book['id']));
+                    } catch (e) {
+                      debugPrint('Error navigating to book details: $e');
+                    }
+                  },
+                  child: Card(
+                    color: Colors.white,
+                    margin: const EdgeInsets.all(10),
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Row(
+                        children: [
+                          // Menampilkan gambar thumbnail buku
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8.0),
+                            child: Image.network(
+                              book['thumbnail'],
+                              width: 60,
+                              height: 80,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
-                        // Menampilkan detail buku
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Menampilkan judul buku
-                              Text(
-                                book['title'],
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                          const SizedBox(width: 10),
+                          // Menampilkan detail buku
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Menampilkan judul buku
+                                Text(
+                                  book['title'],
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 5),
-                              // Menampilkan penulis buku
-                              Text(
-                                book['authors'].join(', '),
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                              const SizedBox(height: 5),
-                              // Menampilkan tanggal publikasi buku
-                              Text(
-                                'Published: ${book['publishedDate']}',
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                            ],
+                                const SizedBox(height: 5),
+                                // Menampilkan penulis buku
+                                Text(
+                                  book['authors'].join(', '),
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                                const SizedBox(height: 5),
+                                // Menampilkan tanggal publikasi buku
+                                Text(
+                                  'Published: ${book['publishedDate']}',
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 );
